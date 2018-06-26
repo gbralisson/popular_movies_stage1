@@ -1,15 +1,24 @@
 package com.example.android.popular_movies_1;
 
+import android.content.Context;
+import android.content.Intent;
 import android.os.AsyncTask;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
+import com.example.android.popular_movies_1.Adapter.MovieAdapter;
 import com.example.android.popular_movies_1.Model.Movie;
 import com.example.android.popular_movies_1.Network.NetworkUtils;
 import com.example.android.popular_movies_1.Utils.ParseJsonFromMovieDB;
+import com.squareup.picasso.Picasso;
 
 import org.json.JSONException;
 
@@ -17,10 +26,13 @@ import java.io.IOException;
 import java.net.URL;
 
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements MovieAdapter.MovieAdapterOnClickHandler{
 
     ImageView imageView;
     TextView textView;
+
+    private RecyclerView recyclerView;
+    private MovieAdapter movieAdapter;
 
     Movie[] movies;
 
@@ -33,16 +45,56 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         //imageView = (ImageView) findViewById(R.id.img_test);
-        textView = (TextView) findViewById(R.id.txt_Json);
+        //textView = (TextView) findViewById(R.id.txt_Json);
 
-        //Picasso.with(this).load("http://image.tmdb.org/t/p/w185//nBNZadXqJSdt05SHLqgT0HuC5Gm.jpg").into(imageView);
+        recyclerView = (RecyclerView) findViewById(R.id.rv_movies);
 
-        loadDataMovie();
+        LinearLayoutManager linearLayoutManager = new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false);
+
+        recyclerView.setLayoutManager(linearLayoutManager);
+
+        movieAdapter = new MovieAdapter(getApplicationContext(), this);
+
+        recyclerView.setAdapter(movieAdapter);
+
+        loadDataMovie("");
 
     }
 
-    public void loadDataMovie(){
-        new FetchMovieDB().execute("");
+    public void loadDataMovie(String sort){
+        new FetchMovieDB().execute(sort);
+    }
+
+    @Override
+    public void onClick(Movie movie) {
+        Intent intent = new Intent(this, InfoActivity.class);
+        intent.putExtra("movie_data", movie);
+        startActivity(intent);
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.main_menu_activity, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        int id = item.getItemId();
+
+        if(id == R.id.menu_order_popularity){
+            movieAdapter.setMovieData(null);
+            loadDataMovie("popularity.asc");
+            return true;
+        }
+
+        if(id == R.id.menu_order_rate){
+            movieAdapter.setMovieData(null);
+            loadDataMovie("vote_average.desc");
+            return true;
+        }
+
+        return super.onOptionsItemSelected(item);
     }
 
     public class FetchMovieDB extends AsyncTask<String, Void, Movie[]> {
@@ -53,10 +105,10 @@ public class MainActivity extends AppCompatActivity {
             if (params.length == 0)
                 return null;
 
-            String id = params[0];
+            String sort = params[0];
             Movie[] movies = null;
 
-            URL movie_url = NetworkUtils.buildUrl("popularity.asc");
+            URL movie_url = NetworkUtils.buildUrl(sort);
             Log.d("project", movie_url.toString());
 
             try {
@@ -64,30 +116,25 @@ public class MainActivity extends AppCompatActivity {
                 String responseURL = NetworkUtils.getResponseFromHttpUrl(movie_url);
                 movies = ParseJsonFromMovieDB.getJson(responseURL);
 
+                return movies;
+
             } catch (IOException e) {
                 e.printStackTrace();
             } catch (JSONException e) {
                 e.printStackTrace();
             }
 
-            return movies;
-
+            return null;
         }
 
         @Override
         protected void onPostExecute(Movie[] movieData) {
-            Log.d("project", "Entrou");
 
             if (movieData != null) {
-
-                Log.d("project", "Entrou1");
-                for (int i=0; i<movieData.length; i++) {
-                    movies[i] = movieData[i];
-                    Log.d("project", movies[i].getOriginal_title());
-                }
+                movieAdapter.setMovieData(movieData);
+                //Log.d("project", String.valueOf(movieData.length));
             }
 
-            Log.d("project", "saiu");
         }
 
     }

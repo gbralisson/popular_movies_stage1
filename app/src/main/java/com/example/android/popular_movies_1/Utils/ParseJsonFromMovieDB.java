@@ -8,15 +8,13 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.util.concurrent.atomic.AtomicReference;
-
 public class ParseJsonFromMovieDB {
 
     public static Movie[] getJson(String json) throws JSONException {
 
         JSONObject root = new JSONObject(json);
 
-        Movie[] movie = null;
+        Movie[] movies = null;
 
         if (root != null) {
             int page = root.getInt("page");
@@ -24,43 +22,49 @@ public class ParseJsonFromMovieDB {
             int total_pages = root.getInt("total_pages");
 
             JSONArray results = root.getJSONArray("results");
-            
-            movie = new Movie[results.length()];
 
-            int count=0;
-            //Log.d("project", String.valueOf(movie.length));
+            movies = new Movie[results.length()];
             
-            for (int i=0; i<movie.length; i++){
+            for (int i=0; i<movies.length; i++){
 
                 JSONObject resultMovie = results.getJSONObject(i);
 
-                if(resultMovie != null) {
+                movies[i] = new Movie();
 
-                    movie[i] = new Movie();
+                String overview = resultMovie.getString(Attributes.OVERVIEW);
+                int id = resultMovie.getInt(Attributes.ID);
+                String title = resultMovie.getString(Attributes.TITLE);
+                int vote_count = resultMovie.getInt(Attributes.VOTE_COUNT);
+                boolean video = resultMovie.getBoolean(Attributes.VIDEO);
+                double vote_average = resultMovie.getDouble(Attributes.VOTE_AVERAGE);
+                double populatiry = resultMovie.getDouble(Attributes.POPULARITY);
+                String poster_path = resultMovie.getString(Attributes.POSTER_PATH);
+                String original_language = resultMovie.getString(Attributes.ORIGINAL_LANGUAGE);
+                String original_title = resultMovie.getString(Attributes.ORIGINAL_TITLE);
+                String backdrop_path = resultMovie.getString(Attributes.BACKDROP_PATH);
+                boolean adult = resultMovie.getBoolean(Attributes.ADULT);
+                String release_data = resultMovie.getString(Attributes.RELEASE_DATE);
 
-                    movie[i].setVote_count(resultMovie.getInt(Attributes.VOTE_COUNT));
-                    movie[i].setId(resultMovie.getInt(Attributes.ID));
-                    movie[i].setVideo(resultMovie.getBoolean(Attributes.VIDEO));
-                    movie[i].setVote_average(resultMovie.getDouble(Attributes.VOTE_AVERAGE));
-                    movie[i].setTitle(resultMovie.getString(Attributes.TITLE));
-                    movie[i].setPopulatrity(resultMovie.getDouble(Attributes.POPULARITY));
-                    movie[i].setPoster_path(resultMovie.getString(Attributes.POSTER_PATH));
-                    movie[i].setOriginal_language(resultMovie.getString(Attributes.ORIGINAL_LANGUAGE));
-                    movie[i].setOriginal_title(resultMovie.getString(Attributes.ORIGINAL_TITLE));
-                    movie[i].setBackdrop_path(resultMovie.getString(Attributes.BACKDROP_PATH));
-                    movie[i].setAdult(resultMovie.getBoolean(Attributes.ADULT));
-                    movie[i].setOverview(resultMovie.getString(Attributes.OVERVIEW));
-                    movie[i].setRelease_data(resultMovie.getString(Attributes.RELEASE_DATE));
+                movies[i].setVote_count(vote_count);
+                movies[i].setId(id);
+                movies[i].setVideo(video);
+                movies[i].setVote_average(vote_average);
+                movies[i].setTitle(title);
+                movies[i].setPopulatrity(populatiry);
+                movies[i].setPoster_path(poster_path);
+                movies[i].setOriginal_language(original_language);
+                movies[i].setOriginal_title(original_title);
+                movies[i].setBackdrop_path(backdrop_path);
+                movies[i].setAdult(adult);
+                movies[i].setOverview(overview);
+                movies[i].setRelease_data(release_data);
 
-                    Log.d("project", String.valueOf(movie[i].getVote_count()));
-                    Log.d("project", String.valueOf(movie[i].getId()));
-                }
-                
             }
-            
+
         }
 
-        return movie;
+        return movies;
+
     }
 
 }

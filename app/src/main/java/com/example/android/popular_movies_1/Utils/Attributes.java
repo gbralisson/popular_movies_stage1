@@ -15,6 +15,6 @@ public class Attributes {
     public static final String BACKDROP_PATH = "backdrop_path";
     public static final String ADULT = "adult";
     public static final String OVERVIEW = "overview";
-    public static final String RELEASE_DATE = "release-date";
+    public static final String RELEASE_DATE = "release_date";
 
 }

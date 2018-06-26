@@ -1,6 +1,11 @@
 package com.example.android.popular_movies_1.Model;
 
-public class Movie {
+import android.os.Parcel;
+import android.os.Parcelable;
+
+import java.io.Serializable;
+
+public class Movie implements Serializable{
 
     private int vote_count;
     private int id;
@@ -131,4 +136,5 @@ public class Movie {
     public void setRelease_data(String release_data) {
         this.release_data = release_data;
     }
+
 }
