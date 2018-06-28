@@ -137,4 +137,24 @@ public class Movie implements Serializable{
         this.release_data = release_data;
     }
 
+//    @Override
+//    public int describeContents() {
+//        return 0;
+//    }
+//
+//    @Override
+//    public void writeToParcel(Parcel dest, int flags) {
+//        dest.writeInt(vote_count);
+//        dest.writeInt(id);
+//        dest.w
+//        dest.writeInt(vote_count);
+//        dest.writeInt(vote_count);
+//        dest.writeInt(vote_count);
+//        dest.writeInt(vote_count);
+//        dest.writeInt(vote_count);
+//        dest.writeInt(vote_count);
+//        dest.writeInt(vote_count);
+//        dest.writeInt(vote_count);
+//
+//    }
 }

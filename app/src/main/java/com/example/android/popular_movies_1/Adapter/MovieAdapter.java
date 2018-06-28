@@ -14,6 +14,8 @@ import com.squareup.picasso.Picasso;
 
 public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.MovieAdpaterViewHolder>{
 
+    private static final String IMAGE_PATH = "http://image.tmdb.org/t/p/w185/";
+
     private MovieAdapterOnClickHandler handler;
     private Movie[] movies;
     private Context context;
@@ -57,7 +59,6 @@ public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.MovieAdpater
 
         public MovieAdpaterViewHolder(View itemView) {
             super(itemView);
-            //txtMovie = (TextView) itemView.findViewById(R.id.txt_item);
             imageView = (ImageView) itemView.findViewById(R.id.img_item);
             itemView.setOnClickListener(this);
         }
@@ -76,7 +77,7 @@ public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.MovieAdpater
     }
 
     public void loadImageMovie(Context context, String pathImage, ImageView imageView){
-        Picasso.with(context).load("http://image.tmdb.org/t/p/w185/" + pathImage).into(imageView);
+        Picasso.with(context).load(IMAGE_PATH + pathImage).into(imageView);
     }
 
 }

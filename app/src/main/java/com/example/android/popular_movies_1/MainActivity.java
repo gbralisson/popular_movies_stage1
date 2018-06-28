@@ -3,6 +3,7 @@ package com.example.android.popular_movies_1;
 import android.content.Context;
 import android.content.Intent;
 import android.os.AsyncTask;
+import android.os.Parcelable;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
@@ -10,7 +11,10 @@ import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.GridView;
 import android.widget.ImageView;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -28,37 +32,48 @@ import java.net.URL;
 
 public class MainActivity extends AppCompatActivity implements MovieAdapter.MovieAdapterOnClickHandler{
 
-    ImageView imageView;
-    TextView textView;
+    private ProgressBar progressBar;
 
     private RecyclerView recyclerView;
     private MovieAdapter movieAdapter;
 
-    Movie[] movies;
-
-    private final String KEY = "47cd3048b1243fdf03812df8a6e2fc4f";
-
+    private String sort_state;
+    private Parcelable recycler_state;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        //imageView = (ImageView) findViewById(R.id.img_test);
-        //textView = (TextView) findViewById(R.id.txt_Json);
+        progressBar = findViewById(R.id.pb_loading);
+        recyclerView = findViewById(R.id.rv_movies);
 
-        recyclerView = (RecyclerView) findViewById(R.id.rv_movies);
+        if (savedInstanceState != null) {
+            sort_state = savedInstanceState.getString("instance_sort");
+//            recycler_state = savedInstanceState.getParcelable("instance_list");
+
+        }else {
+            sort_state = "popular";
+        }
 
         LinearLayoutManager linearLayoutManager = new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false);
-
         recyclerView.setLayoutManager(linearLayoutManager);
-
+//
         movieAdapter = new MovieAdapter(getApplicationContext(), this);
-
+//
         recyclerView.setAdapter(movieAdapter);
+        recyclerView.getLayoutManager().onRestoreInstanceState(recycler_state);
 
-        loadDataMovie("");
+        loadDataMovie(sort_state);
 
+    }
+
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+
+        outState.putString("instance_sort", sort_state);
+//        outState.putParcelable("instance_list", recyclerView.getLayoutManager().onSaveInstanceState());
     }
 
     public void loadDataMovie(String sort){
@@ -84,13 +99,15 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Movi
 
         if(id == R.id.menu_order_popularity){
             movieAdapter.setMovieData(null);
-            loadDataMovie("popularity.asc");
+            sort_state = "popular";
+            loadDataMovie(sort_state);
             return true;
         }
 
         if(id == R.id.menu_order_rate){
             movieAdapter.setMovieData(null);
-            loadDataMovie("vote_average.desc");
+            sort_state = "top_rated";
+            loadDataMovie(sort_state);
             return true;
         }
 
@@ -98,6 +115,11 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Movi
     }
 
     public class FetchMovieDB extends AsyncTask<String, Void, Movie[]> {
+
+        @Override
+        protected void onPreExecute() {
+            progressBar.setVisibility(View.VISIBLE);
+        }
 
         @Override
         protected Movie[] doInBackground(String... params) {
@@ -132,7 +154,7 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Movi
 
             if (movieData != null) {
                 movieAdapter.setMovieData(movieData);
-                //Log.d("project", String.valueOf(movieData.length));
+                progressBar.setVisibility(View.INVISIBLE);
             }
 
         }

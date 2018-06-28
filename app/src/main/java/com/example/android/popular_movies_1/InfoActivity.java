@@ -23,11 +23,11 @@ public class InfoActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_info);
 
-        txtInfoTitle = (TextView) findViewById(R.id.txt_info_title);
-        txtInfoOverview = (TextView) findViewById(R.id.txt_info_overview);
-        imgInfoPoster = (ImageView) findViewById(R.id.img_info_poster);
-        txtInfoRate = (TextView) findViewById(R.id.txt_info_rate);
-        txtInfoRelease = (TextView) findViewById(R.id.txt_info_release);
+        txtInfoTitle = findViewById(R.id.txt_info_title);
+        txtInfoOverview = findViewById(R.id.txt_info_overview);
+        imgInfoPoster = findViewById(R.id.img_info_poster);
+        txtInfoRate = findViewById(R.id.txt_info_rate);
+        txtInfoRelease = findViewById(R.id.txt_info_release);
 
         if (getIntent() != null){
             if(getIntent().hasExtra("movie_data")){

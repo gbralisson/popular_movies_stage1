@@ -14,7 +14,7 @@ public class NetworkUtils {
 
     private static final String KEY_MOVIEDB = "47cd3048b1243fdf03812df8a6e2fc4f";
 
-    private static final String MOVIEDB_URL = "http://api.themoviedb.org/3/movie/popular";
+    private static final String MOVIEDB_URL = "http://api.themoviedb.org/3/movie";
 
 
     /* The format we want our API to return */
@@ -30,9 +30,8 @@ public class NetworkUtils {
 
     public static URL buildUrl(String sort) {
 
-        Uri builtUri = Uri.parse(MOVIEDB_URL).buildUpon()
+        Uri builtUri = Uri.parse(MOVIEDB_URL + "/" + sort).buildUpon()
                 .appendQueryParameter(QUERY_PARAM, KEY_MOVIEDB)
-                .appendQueryParameter(SORT_BY_PARAM, sort)
                 .appendQueryParameter(FORMAT_PARAM, format)
                 .appendQueryParameter(UNITS_PARAM, units)
                 .build();

@@ -2,4 +2,7 @@
     <string name="app_name">Popular_Movies_1</string>
     <string name="order_by_popular">Order by popularity</string>
     <string name="order_by_highest_rated">Order by highest rate</string>
+
+    <string name="popular">popular</string>
+    <string name="top_rated">top_rated</string>
 </resources>
