@@ -1,6 +1,7 @@
 package com.example.android.popular_movies_1;
 
 import android.content.Context;
+import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.widget.ImageView;
@@ -16,12 +17,16 @@ public class InfoActivity extends AppCompatActivity {
     private ImageView imgInfoPoster;
     private TextView txtInfoRate;
     private TextView txtInfoRelease;
-    Movie movie;
+    private ActionBar actionBar;
+    private Movie movie;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_info);
+
+        actionBar = getSupportActionBar();
+        actionBar.setTitle(R.string.detail_activity_name);
 
         txtInfoTitle = findViewById(R.id.txt_info_title);
         txtInfoOverview = findViewById(R.id.txt_info_overview);

@@ -6,6 +6,7 @@ import android.os.AsyncTask;
 import android.os.Parcelable;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
@@ -56,13 +57,15 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Movi
             sort_state = "popular";
         }
 
-        LinearLayoutManager linearLayoutManager = new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false);
-        recyclerView.setLayoutManager(linearLayoutManager);
-//
+        GridLayoutManager gridLayoutManager = new GridLayoutManager(this, 2, GridLayoutManager.VERTICAL, false);
+
+        recyclerView.setLayoutManager(gridLayoutManager);
+
         movieAdapter = new MovieAdapter(getApplicationContext(), this);
-//
+
         recyclerView.setAdapter(movieAdapter);
-        recyclerView.getLayoutManager().onRestoreInstanceState(recycler_state);
+        recyclerView.setHasFixedSize(true);
+        //recyclerView.getLayoutManager().onRestoreInstanceState(recycler_state);
 
         loadDataMovie(sort_state);
 

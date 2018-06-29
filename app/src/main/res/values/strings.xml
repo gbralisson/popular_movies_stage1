@@ -1,8 +1,17 @@
 <resources>
-    <string name="app_name">Popular_Movies_1</string>
+    <string name="app_name">Movies</string>
+    <string name="detail_activity_name">Movie details</string>
+
     <string name="order_by_popular">Order by popularity</string>
     <string name="order_by_highest_rated">Order by highest rate</string>
 
     <string name="popular">popular</string>
     <string name="top_rated">top_rated</string>
+
+    <string name="release_date">Release Date</string>
+    <string name="vote_rate">Rate</string>
+    <string name="synopsis">Synopsis</string>
+
+    <string name="image_description">Movie Post</string>
+    <string name="image_description_main">Thumbnail</string>
 </resources>
