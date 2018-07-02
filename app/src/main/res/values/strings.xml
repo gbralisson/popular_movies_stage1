@@ -2,6 +2,8 @@
     <string name="app_name">Movies</string>
     <string name="detail_activity_name">Movie details</string>
 
+    <string name="txt_no_connection">No internet. Check your connection</string>
+
     <string name="order_by_popular">Order by popularity</string>
     <string name="order_by_highest_rated">Order by highest rate</string>
 

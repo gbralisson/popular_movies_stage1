@@ -1,29 +1,22 @@
 package com.example.android.popular_movies_1;
 
-import android.content.Context;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Parcelable;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.GridLayoutManager;
-import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.GridView;
-import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.example.android.popular_movies_1.Adapter.MovieAdapter;
 import com.example.android.popular_movies_1.Model.Movie;
 import com.example.android.popular_movies_1.Network.NetworkUtils;
 import com.example.android.popular_movies_1.Utils.ParseJsonFromMovieDB;
-import com.squareup.picasso.Picasso;
 
 import org.json.JSONException;
 
@@ -34,12 +27,17 @@ import java.net.URL;
 public class MainActivity extends AppCompatActivity implements MovieAdapter.MovieAdapterOnClickHandler{
 
     private ProgressBar progressBar;
+    private TextView txt_loading;
 
     private RecyclerView recyclerView;
     private MovieAdapter movieAdapter;
 
     private String sort_state;
     private Parcelable recycler_state;
+
+    private int NUM_COLUMNS = 2;
+    private String KEY_INTENT = "movie_data";
+    private String SAVE_SORT_STATE = "instance_sort";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -48,16 +46,17 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Movi
 
         progressBar = findViewById(R.id.pb_loading);
         recyclerView = findViewById(R.id.rv_movies);
+        txt_loading = findViewById(R.id.txt_loading);
 
         if (savedInstanceState != null) {
-            sort_state = savedInstanceState.getString("instance_sort");
+            sort_state = savedInstanceState.getString(SAVE_SORT_STATE);
 //            recycler_state = savedInstanceState.getParcelable("instance_list");
 
         }else {
-            sort_state = "popular";
+            sort_state = getString(R.string.popular);
         }
 
-        GridLayoutManager gridLayoutManager = new GridLayoutManager(this, 2, GridLayoutManager.VERTICAL, false);
+        GridLayoutManager gridLayoutManager = new GridLayoutManager(this, NUM_COLUMNS, GridLayoutManager.VERTICAL, false);
 
         recyclerView.setLayoutManager(gridLayoutManager);
 
@@ -75,7 +74,7 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Movi
     protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
 
-        outState.putString("instance_sort", sort_state);
+        outState.putString(SAVE_SORT_STATE, sort_state);
 //        outState.putParcelable("instance_list", recyclerView.getLayoutManager().onSaveInstanceState());
     }
 
@@ -86,7 +85,7 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Movi
     @Override
     public void onClick(Movie movie) {
         Intent intent = new Intent(this, InfoActivity.class);
-        intent.putExtra("movie_data", movie);
+        intent.putExtra(KEY_INTENT, movie);
         startActivity(intent);
     }
 
@@ -102,14 +101,14 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Movi
 
         if(id == R.id.menu_order_popularity){
             movieAdapter.setMovieData(null);
-            sort_state = "popular";
+            sort_state = getString(R.string.popular);
             loadDataMovie(sort_state);
             return true;
         }
 
         if(id == R.id.menu_order_rate){
             movieAdapter.setMovieData(null);
-            sort_state = "top_rated";
+            sort_state = getString(R.string.top_rated);
             loadDataMovie(sort_state);
             return true;
         }
@@ -121,7 +120,9 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Movi
 
         @Override
         protected void onPreExecute() {
+            recyclerView.setVisibility(View.VISIBLE);
             progressBar.setVisibility(View.VISIBLE);
+            txt_loading.setVisibility(View.INVISIBLE);
         }
 
         @Override
@@ -134,14 +135,15 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Movi
             Movie[] movies = null;
 
             URL movie_url = NetworkUtils.buildUrl(sort);
-            Log.d("project", movie_url.toString());
 
             try {
 
                 String responseURL = NetworkUtils.getResponseFromHttpUrl(movie_url);
-                movies = ParseJsonFromMovieDB.getJson(responseURL);
 
-                return movies;
+                if (responseURL != null){
+                    movies = ParseJsonFromMovieDB.getJson(responseURL);
+                    return movies;
+                }
 
             } catch (IOException e) {
                 e.printStackTrace();
@@ -156,8 +158,17 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Movi
         protected void onPostExecute(Movie[] movieData) {
 
             if (movieData != null) {
-                movieAdapter.setMovieData(movieData);
+
                 progressBar.setVisibility(View.INVISIBLE);
+                txt_loading.setVisibility(View.INVISIBLE);
+                movieAdapter.setMovieData(movieData);
+
+            } else {
+
+                progressBar.setVisibility(View.INVISIBLE);
+                txt_loading.setVisibility(View.VISIBLE);
+                recyclerView.setVisibility(View.INVISIBLE);
+
             }
 
         }

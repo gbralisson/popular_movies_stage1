@@ -39,7 +39,6 @@ public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.MovieAdpater
 
     @Override
     public void onBindViewHolder(MovieAdpaterViewHolder holder, int position) {
-        //holder.txtMovie.setText(movies[position].getTitle());
         loadImageMovie(context, movies[position].getPoster_path(), holder.imageView);
     }
 
@@ -76,7 +75,7 @@ public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.MovieAdpater
         notifyDataSetChanged();
     }
 
-    public void loadImageMovie(Context context, String pathImage, ImageView imageView){
+    public static void loadImageMovie(Context context, String pathImage, ImageView imageView){
         Picasso.with(context).load(IMAGE_PATH + pathImage).into(imageView);
     }
 
