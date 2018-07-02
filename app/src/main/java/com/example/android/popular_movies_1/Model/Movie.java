@@ -1,8 +1,5 @@
 package com.example.android.popular_movies_1.Model;
 
-import android.os.Parcel;
-import android.os.Parcelable;
-
 import java.io.Serializable;
 
 public class Movie implements Serializable{
@@ -137,24 +134,4 @@ public class Movie implements Serializable{
         this.release_data = release_data;
     }
 
-//    @Override
-//    public int describeContents() {
-//        return 0;
-//    }
-//
-//    @Override
-//    public void writeToParcel(Parcel dest, int flags) {
-//        dest.writeInt(vote_count);
-//        dest.writeInt(id);
-//        dest.w
-//        dest.writeInt(vote_count);
-//        dest.writeInt(vote_count);
-//        dest.writeInt(vote_count);
-//        dest.writeInt(vote_count);
-//        dest.writeInt(vote_count);
-//        dest.writeInt(vote_count);
-//        dest.writeInt(vote_count);
-//        dest.writeInt(vote_count);
-//
-//    }
 }

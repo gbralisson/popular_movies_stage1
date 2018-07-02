@@ -6,8 +6,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
-import android.widget.TextView;
-
 import com.example.android.popular_movies_1.Model.Movie;
 import com.example.android.popular_movies_1.R;
 import com.squareup.picasso.Picasso;
@@ -52,13 +50,11 @@ public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.MovieAdpater
 
 
     public class MovieAdpaterViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
-
-        private TextView txtMovie;
         private ImageView imageView;
 
         public MovieAdpaterViewHolder(View itemView) {
             super(itemView);
-            imageView = (ImageView) itemView.findViewById(R.id.img_item);
+            imageView = itemView.findViewById(R.id.img_item);
             itemView.setOnClickListener(this);
         }
 
@@ -70,11 +66,13 @@ public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.MovieAdpater
         }
     }
 
+    // Set the data retrieved to movies array of adapter
     public void setMovieData(Movie[] movies){
         this.movies = movies;
         notifyDataSetChanged();
     }
 
+    // Load the movie poster according the path
     public static void loadImageMovie(Context context, String pathImage, ImageView imageView){
         Picasso.with(context).load(IMAGE_PATH + pathImage).into(imageView);
     }

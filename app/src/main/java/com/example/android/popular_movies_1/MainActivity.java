@@ -35,9 +35,8 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Movi
     private String sort_state;
     private Parcelable recycler_state;
 
-    private int NUM_COLUMNS = 2;
-    private String KEY_INTENT = "movie_data";
-    private String SAVE_SORT_STATE = "instance_sort";
+    private final String SAVE_SORT_STATE = "instance_sort";
+    private final String SAVE_LIST_STATE = "instance_list";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -48,14 +47,14 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Movi
         recyclerView = findViewById(R.id.rv_movies);
         txt_loading = findViewById(R.id.txt_loading);
 
+        // Check if there is an instance saved
         if (savedInstanceState != null) {
             sort_state = savedInstanceState.getString(SAVE_SORT_STATE);
-//            recycler_state = savedInstanceState.getParcelable("instance_list");
-
         }else {
             sort_state = getString(R.string.popular);
         }
 
+        int NUM_COLUMNS = 2;
         GridLayoutManager gridLayoutManager = new GridLayoutManager(this, NUM_COLUMNS, GridLayoutManager.VERTICAL, false);
 
         recyclerView.setLayoutManager(gridLayoutManager);
@@ -64,26 +63,41 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Movi
 
         recyclerView.setAdapter(movieAdapter);
         recyclerView.setHasFixedSize(true);
-        //recyclerView.getLayoutManager().onRestoreInstanceState(recycler_state);
+
+        // Restore the instance saved
+        recyclerView.getLayoutManager().onRestoreInstanceState(recycler_state);
 
         loadDataMovie(sort_state);
 
     }
 
+    // Save the instances of sort type and position of recycler view
     @Override
     protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
 
         outState.putString(SAVE_SORT_STATE, sort_state);
-//        outState.putParcelable("instance_list", recyclerView.getLayoutManager().onSaveInstanceState());
+        outState.putParcelable(SAVE_LIST_STATE, recyclerView.getLayoutManager().onSaveInstanceState());
     }
 
-    public void loadDataMovie(String sort){
+    // Restore position data from recycler view
+    @Override
+    protected void onRestoreInstanceState(Bundle savedInstanceState) {
+        super.onRestoreInstanceState(savedInstanceState);
+
+        if (savedInstanceState != null)
+            recycler_state = savedInstanceState.getParcelable(SAVE_LIST_STATE);
+    }
+
+    // Method to fetch data from movieDB
+    private void loadDataMovie(String sort){
         new FetchMovieDB().execute(sort);
     }
 
+    // Send the data to Info activity
     @Override
     public void onClick(Movie movie) {
+        String KEY_INTENT = "movie_data";
         Intent intent = new Intent(this, InfoActivity.class);
         intent.putExtra(KEY_INTENT, movie);
         startActivity(intent);
@@ -116,7 +130,7 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Movi
         return super.onOptionsItemSelected(item);
     }
 
-    public class FetchMovieDB extends AsyncTask<String, Void, Movie[]> {
+    private class FetchMovieDB extends AsyncTask<String, Void, Movie[]> {
 
         @Override
         protected void onPreExecute() {
@@ -132,8 +146,6 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Movi
                 return null;
 
             String sort = params[0];
-            Movie[] movies = null;
-
             URL movie_url = NetworkUtils.buildUrl(sort);
 
             try {
@@ -141,8 +153,7 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Movi
                 String responseURL = NetworkUtils.getResponseFromHttpUrl(movie_url);
 
                 if (responseURL != null){
-                    movies = ParseJsonFromMovieDB.getJson(responseURL);
-                    return movies;
+                    return ParseJsonFromMovieDB.getJson(responseURL);
                 }
 
             } catch (IOException e) {

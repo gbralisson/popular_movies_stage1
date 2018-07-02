@@ -1,8 +1,6 @@
 package com.example.android.popular_movies_1.Network;
 
 import android.net.Uri;
-import android.util.Log;
-
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
@@ -12,22 +10,22 @@ import java.util.Scanner;
 
 public class NetworkUtils {
 
-    private static final String KEY_MOVIEDB = "47cd3048b1243fdf03812df8a6e2fc4f";
+    private static final String KEY_MOVIEDB = "";
 
+    // URL that get data from movieDB
     private static final String MOVIEDB_URL = "http://api.themoviedb.org/3/movie";
 
 
-    /* The format we want our API to return */
+    // The format we want our API to return
     private static final String format = "json";
-    /* The units we want our API to return */
+    // The units we want our API to return
     private static final String units = "metric";
 
     final static String QUERY_PARAM = "api_key";
-    final static String SORT_BY_PARAM = "sort_by";
     final static String FORMAT_PARAM = "mode";
     final static String UNITS_PARAM = "units";
 
-
+    // Build the URL
     public static URL buildUrl(String sort) {
 
         Uri builtUri = Uri.parse(MOVIEDB_URL + "/" + sort).buildUpon()
@@ -46,6 +44,7 @@ public class NetworkUtils {
         return url;
     }
 
+    // Get response from URL built
     public static String getResponseFromHttpUrl(URL url) throws IOException {
         HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
         try {
