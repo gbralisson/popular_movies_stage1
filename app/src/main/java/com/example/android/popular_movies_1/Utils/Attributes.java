@@ -17,4 +17,10 @@ public class Attributes {
     public static final String OVERVIEW = "overview";
     public static final String RELEASE_DATE = "release_date";
 
+    public static final String KEY = "key";
+    public static final String NAME = "name";
+    public static final String SITE = "site";
+    public static final String SIZE = "size";
+    public static final String TYPE = "type";
+
 }

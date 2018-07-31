@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <array name="pref_options_names">
+        <item>@string/pref_options_popular</item>
+        <item>@string/pref_options_top_rated</item>
+        <item>@string/pref_options_favorites</item>
+    </array>
+
+    <array name="pref_options_values">
+        <item>@string/pref_options_popular_value</item>
+        <item>@string/pref_options_top_rated_value</item>
+        <item>@string/pref_options_favorites_value</item>
+    </array>
+
+</resources>

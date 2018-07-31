@@ -1,10 +1,12 @@
 package com.example.android.popular_movies_1;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.Parcelable;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.preference.PreferenceManager;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.Menu;
@@ -24,7 +26,8 @@ import java.io.IOException;
 import java.net.URL;
 
 
-public class MainActivity extends AppCompatActivity implements MovieAdapter.MovieAdapterOnClickHandler{
+public class MainActivity extends AppCompatActivity implements MovieAdapter.MovieAdapterOnClickHandler,
+        SharedPreferences.OnSharedPreferenceChangeListener{
 
     private ProgressBar progressBar;
     private TextView txt_loading;
@@ -35,7 +38,6 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Movi
     private String sort_state;
     private Parcelable recycler_state;
 
-    private final String SAVE_SORT_STATE = "instance_sort";
     private final String SAVE_LIST_STATE = "instance_list";
 
     @Override
@@ -47,12 +49,7 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Movi
         recyclerView = findViewById(R.id.rv_movies);
         txt_loading = findViewById(R.id.txt_loading);
 
-        // Check if there is an instance saved
-        if (savedInstanceState != null) {
-            sort_state = savedInstanceState.getString(SAVE_SORT_STATE);
-        }else {
-            sort_state = getString(R.string.popular);
-        }
+        setupPreferences();
 
         int NUM_COLUMNS = 2;
         GridLayoutManager gridLayoutManager = new GridLayoutManager(this, NUM_COLUMNS, GridLayoutManager.VERTICAL, false);
@@ -75,8 +72,6 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Movi
     @Override
     protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
-
-        outState.putString(SAVE_SORT_STATE, sort_state);
         outState.putParcelable(SAVE_LIST_STATE, recyclerView.getLayoutManager().onSaveInstanceState());
     }
 
@@ -87,6 +82,28 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Movi
 
         if (savedInstanceState != null)
             recycler_state = savedInstanceState.getParcelable(SAVE_LIST_STATE);
+    }
+
+    private void setupPreferences(){
+        SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
+        loadSettingOptions(sharedPreferences);
+        sharedPreferences.registerOnSharedPreferenceChangeListener(this);
+    }
+
+    private void loadSettingOptions(SharedPreferences sharedPreferences){
+        sort_state = sharedPreferences.getString(getString(R.string.pref_options_key), getString(R.string.pref_options_popular_value));
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        PreferenceManager.getDefaultSharedPreferences(this).unregisterOnSharedPreferenceChangeListener(this);
+    }
+
+    @Override
+    public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
+        if (key.equals(getString(R.string.pref_options_key)))
+            loadSettingOptions(sharedPreferences);
     }
 
     // Method to fetch data from movieDB
@@ -113,18 +130,9 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Movi
     public boolean onOptionsItemSelected(MenuItem item) {
         int id = item.getItemId();
 
-        if(id == R.id.menu_order_popularity){
-            movieAdapter.setMovieData(null);
-            sort_state = getString(R.string.popular);
-            loadDataMovie(sort_state);
-            return true;
-        }
-
-        if(id == R.id.menu_order_rate){
-            movieAdapter.setMovieData(null);
-            sort_state = getString(R.string.top_rated);
-            loadDataMovie(sort_state);
-            return true;
+        if(id == R.id.action_settings){
+            Intent intent = new Intent(this, SettingsActivity.class);
+            startActivity(intent);
         }
 
         return super.onOptionsItemSelected(item);

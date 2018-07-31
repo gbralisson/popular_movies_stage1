@@ -1,6 +1,7 @@
 package com.example.android.popular_movies_1.Utils;
 
 import com.example.android.popular_movies_1.Model.Movie;
+import com.example.android.popular_movies_1.Model.Video;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -8,12 +9,13 @@ import org.json.JSONObject;
 
 public class ParseJsonFromMovieDB {
 
+    public static String RESULTS = "results";
+
     public static Movie[] getJson(String json) throws JSONException {
 
         String PAGE = "page";
         String TOTAL_RESULTS = "total_results";
         String TOTAL_PAGES = "total_pages";
-        String RESULTS = "results";
 
         // Creating a JSON object according json
         JSONObject root = new JSONObject(json);
@@ -68,6 +70,37 @@ public class ParseJsonFromMovieDB {
 
         return movies;
 
+    }
+
+    public static Video[] getJsonVideos(String json) throws JSONException {
+
+        JSONObject root = new JSONObject(json);
+        JSONArray results = root.getJSONArray(RESULTS);
+
+        Video[] videos = new Video[results.length()];
+
+        for (int i=0; i<results.length(); i++){
+            JSONObject resultVideo = results.getJSONObject(i);
+
+            videos[i] = new Video();
+
+            String id = resultVideo.getString(Attributes.ID);
+            String key = resultVideo.getString(Attributes.KEY);
+            String name = resultVideo.getString(Attributes.NAME);
+            String site = resultVideo.getString(Attributes.SITE);
+            int size = resultVideo.getInt(Attributes.SIZE);
+            String type = resultVideo.getString(Attributes.TYPE);
+
+            videos[i].setId(id);
+            videos[i].setKey(key);
+            videos[i].setName(name);
+            videos[i].setSite(site);
+            videos[i].setSize(size);
+            videos[i].setType(type);
+
+        }
+
+        return videos;
     }
 
 }
