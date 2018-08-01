@@ -1,6 +1,7 @@
 package com.example.android.popular_movies_1.Utils;
 
 import com.example.android.popular_movies_1.Model.Movie;
+import com.example.android.popular_movies_1.Model.Review;
 import com.example.android.popular_movies_1.Model.Video;
 
 import org.json.JSONArray;
@@ -97,10 +98,34 @@ public class ParseJsonFromMovieDB {
             videos[i].setSite(site);
             videos[i].setSize(size);
             videos[i].setType(type);
-
         }
 
         return videos;
+    }
+
+    public static Review[] getJsonReviews(String json) throws JSONException {
+        JSONObject root = new JSONObject(json);
+        JSONArray results = root.getJSONArray(RESULTS);
+
+        Review[] reviews = new Review[results.length()];
+
+        for (int i=0; i<results.length(); i++){
+            JSONObject resultReview = results.getJSONObject(i);
+
+            reviews[i] = new Review();
+
+            String id = resultReview.getString(Attributes.ID);
+            String author = resultReview.getString(Attributes.AUTHOR);
+            String content = resultReview.getString(Attributes.CONTENT);
+            String url = resultReview.getString(Attributes.URL);
+
+            reviews[i].setId(id);
+            reviews[i].setAuthor(author);
+            reviews[i].setContent(content);
+            reviews[i].setUrl(url);
+        }
+
+        return reviews;
     }
 
 }

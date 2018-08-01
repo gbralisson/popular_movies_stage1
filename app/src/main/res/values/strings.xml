@@ -34,4 +34,13 @@
     <string name="pref_options_top_rated_value" translatable="false">top_rated</string>
     <string name="pref_options_favorites_value" translatable="false">favorites</string>
 
+    <!--Video item Strings-->
+    <string name="video_name">Name</string>
+    <string name="video_type">Type</string>
+    <string name="video_image_content">Image of player icon</string>
+    <string name="trailers">Trailers</string>
+
+    <!--Info Activity Strings -->
+    <string name="favorites">Favorites</string>
+
 </resources>

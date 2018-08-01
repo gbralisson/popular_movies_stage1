@@ -23,4 +23,8 @@ public class Attributes {
     public static final String SIZE = "size";
     public static final String TYPE = "type";
 
+    public static final String AUTHOR = "author";
+    public static final String CONTENT = "content";
+    public static final String URL = "url";
+
 }
