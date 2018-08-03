@@ -87,8 +87,11 @@ public class LoaderReviews implements LoaderManager.LoaderCallbacks<Review[]>, R
 
     @Override
     public void onLoadFinished(@NonNull Loader<Review[]> loader, Review[] data) {
-        Log.d("teste", data[0].getContent());
-        //reviewAdapter.setReviews(data);
+
+        if(data.length == 0)
+            return;
+
+        reviewAdapter.setReviews(data);
     }
 
     @Override

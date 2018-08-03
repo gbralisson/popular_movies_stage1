@@ -44,7 +44,7 @@ public class ParseJsonFromMovieDB {
             int vote_count = resultMovie.getInt(Attributes.VOTE_COUNT);
             boolean video = resultMovie.getBoolean(Attributes.VIDEO);
             double vote_average = resultMovie.getDouble(Attributes.VOTE_AVERAGE);
-            double populatiry = resultMovie.getDouble(Attributes.POPULARITY);
+            double popularity = resultMovie.getDouble(Attributes.POPULARITY);
             String poster_path = resultMovie.getString(Attributes.POSTER_PATH);
             String original_language = resultMovie.getString(Attributes.ORIGINAL_LANGUAGE);
             String original_title = resultMovie.getString(Attributes.ORIGINAL_TITLE);
@@ -58,7 +58,7 @@ public class ParseJsonFromMovieDB {
             movies[i].setVideo(video);
             movies[i].setVote_average(vote_average);
             movies[i].setTitle(title);
-            movies[i].setPopulatrity(populatiry);
+            movies[i].setPopularity(popularity);
             movies[i].setPoster_path(poster_path);
             movies[i].setOriginal_language(original_language);
             movies[i].setOriginal_title(original_title);

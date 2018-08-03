@@ -88,7 +88,10 @@ public class LoaderVideos implements LoaderManager.LoaderCallbacks<Video[]>,
 
     @Override
     public void onLoadFinished(@NonNull Loader<Video[]> loader, Video[] data) {
-        Log.d("teste", data[0].getName());
+
+        if (data.length == 0)
+            return;
+
         videoAdapter.setVideos(data);
     }
 

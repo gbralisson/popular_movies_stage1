@@ -1,11 +1,16 @@
 package com.example.android.popular_movies_1.Model;
 
+import android.arch.persistence.room.Entity;
+import android.arch.persistence.room.PrimaryKey;
+
 import java.io.Serializable;
 
+@Entity(tableName = "favorite")
 public class Movie implements Serializable{
 
-    private int vote_count;
+    @PrimaryKey(autoGenerate = true)
     private int id;
+    private int vote_count;
     private boolean video;
     private double vote_average;
     private String title;
@@ -13,7 +18,6 @@ public class Movie implements Serializable{
     private String poster_path;
     private String original_language;
     private String original_title;
-    private String[] genre_ids;
     private String backdrop_path;
     private boolean adult;
     private String overview;
@@ -62,12 +66,12 @@ public class Movie implements Serializable{
         this.title = title;
     }
 
-    public double getPopulatrity() {
+    public double getPopularity() {
         return popularity;
     }
 
-    public void setPopulatrity(double populatrity) {
-        this.popularity = populatrity;
+    public void setPopularity(double popularity) {
+        this.popularity = popularity;
     }
 
     public String getPoster_path() {
@@ -92,14 +96,6 @@ public class Movie implements Serializable{
 
     public void setOriginal_title(String original_title) {
         this.original_title = original_title;
-    }
-
-    public String[] getGenre_ids() {
-        return genre_ids;
-    }
-
-    public void setGenre_ids(String[] genre_ids) {
-        this.genre_ids = genre_ids;
     }
 
     public String getBackdrop_path() {

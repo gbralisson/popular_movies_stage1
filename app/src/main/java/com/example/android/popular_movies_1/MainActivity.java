@@ -1,14 +1,19 @@
 package com.example.android.popular_movies_1;
 
+import android.arch.lifecycle.Observer;
+import android.arch.lifecycle.ViewModelProvider;
+import android.arch.lifecycle.ViewModelProviders;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.Parcelable;
+import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.preference.PreferenceManager;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -16,14 +21,17 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.example.android.popular_movies_1.Adapter.MovieAdapter;
+import com.example.android.popular_movies_1.Loaders.LoaderReviews;
 import com.example.android.popular_movies_1.Model.Movie;
 import com.example.android.popular_movies_1.Network.NetworkUtils;
 import com.example.android.popular_movies_1.Utils.ParseJsonFromMovieDB;
+import com.example.android.popular_movies_1.ViewModel.FavoriteViewModel;
 
 import org.json.JSONException;
 
 import java.io.IOException;
 import java.net.URL;
+import java.util.List;
 
 
 public class MainActivity extends AppCompatActivity implements MovieAdapter.MovieAdapterOnClickHandler,
@@ -64,7 +72,12 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Movi
         // Restore the instance saved
         recyclerView.getLayoutManager().onRestoreInstanceState(recycler_state);
 
-        loadDataMovie(sort_state);
+        if (sort_state.equals("favorites")) {
+            setupViewModel();
+        }else {
+            loadDataMovie(sort_state);
+        }
+
 
     }
 
@@ -92,6 +105,16 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Movi
 
     private void loadSettingOptions(SharedPreferences sharedPreferences){
         sort_state = sharedPreferences.getString(getString(R.string.pref_options_key), getString(R.string.pref_options_popular_value));
+    }
+
+    private void setupViewModel(){
+        FavoriteViewModel viewModel = ViewModelProviders.of(this).get(FavoriteViewModel.class);
+        viewModel.getFavorites().observe(this, new Observer<Movie[]>() {
+            @Override
+            public void onChanged(@Nullable Movie[] movies) {
+                movieAdapter.setMovieData(movies);
+            }
+        });
     }
 
     @Override

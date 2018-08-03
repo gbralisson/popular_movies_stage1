@@ -1,10 +1,6 @@
 package com.example.android.popular_movies_1;
 
-import android.annotation.SuppressLint;
-import android.support.annotation.NonNull;
-import android.support.v4.app.LoaderManager;
-import android.support.v4.content.AsyncTaskLoader;
-import android.support.v4.content.Loader;
+import android.os.AsyncTask;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
@@ -14,51 +10,48 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.example.android.popular_movies_1.Adapter.MovieAdapter;
+import com.example.android.popular_movies_1.Adapter.ReviewAdapter;
 import com.example.android.popular_movies_1.Adapter.VideoAdapter;
+import com.example.android.popular_movies_1.Database.AppDatabase;
 import com.example.android.popular_movies_1.Loaders.LoaderReviews;
 import com.example.android.popular_movies_1.Loaders.LoaderVideos;
 import com.example.android.popular_movies_1.Model.Movie;
-import com.example.android.popular_movies_1.Model.Review;
 import com.example.android.popular_movies_1.Model.Video;
 import com.example.android.popular_movies_1.Network.NetworkUtils;
-import com.example.android.popular_movies_1.Utils.ParseJsonFromMovieDB;
-
-import org.json.JSONException;
-
-import java.io.IOException;
-import java.net.MalformedURLException;
 import java.net.URL;
 
 public class InfoActivity extends AppCompatActivity implements VideoAdapter.VideoAdapterOnClickHandler{
 
-    private TextView txtInfoTitle;
-    private TextView txtInfoOverview;
-    private ImageView imgInfoPoster;
-    private TextView txtInfoRate;
-    private TextView txtInfoRelease;
     private Movie movie;
 
-    private RecyclerView recyclerView;
+    private RecyclerView recyclerViewTrailer;
+    private RecyclerView recyclerViewReview;
+
     private VideoAdapter videoAdapter;
+    private ReviewAdapter reviewAdapter;
 
     private String KEY_INTENT = "movie_data";
     private static final String SEARCH_VIDEO = "queryVideo";
     private static final String SEARCH_REVIEW = "queryReview";
+
+    private AppDatabase database;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_info);
 
-        txtInfoTitle = findViewById(R.id.txt_info_title);
-        txtInfoOverview = findViewById(R.id.txt_info_overview);
-        imgInfoPoster = findViewById(R.id.img_info_poster);
-        txtInfoRate = findViewById(R.id.txt_info_rate);
-        txtInfoRelease = findViewById(R.id.txt_info_release);
-        recyclerView = findViewById(R.id.rv_videos);
+        TextView txtInfoTitle = findViewById(R.id.txt_info_title);
+        TextView txtInfoOverview = findViewById(R.id.txt_info_overview);
+        ImageView imgInfoPoster = findViewById(R.id.img_info_poster);
+        TextView txtInfoRate = findViewById(R.id.txt_info_rate);
+        TextView txtInfoRelease = findViewById(R.id.txt_info_release);
+        recyclerViewTrailer = findViewById(R.id.rv_videos);
+        recyclerViewReview = findViewById(R.id.rv_review);
+
+        database = AppDatabase.getsInstance(getApplicationContext());
 
         // Verify if there is any data from another activity
         if (getIntent() != null){
@@ -74,14 +67,10 @@ public class InfoActivity extends AppCompatActivity implements VideoAdapter.Vide
             }
         }
 
-        LinearLayoutManager linearLayoutManager = new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false);
-        recyclerView.setLayoutManager(linearLayoutManager);
+        createRecyclerTrailers();
+        createRecyclerReviews();
 
-        videoAdapter = new VideoAdapter(getApplicationContext(), this);
-        recyclerView.setAdapter(videoAdapter);
-        recyclerView.setHasFixedSize(true);
-
-        createLoaderVideos();
+        createLoaderTrailers();
         createLoaderReviews();
 
     }
@@ -92,7 +81,7 @@ public class InfoActivity extends AppCompatActivity implements VideoAdapter.Vide
         return NetworkUtils.buildUrlMovieReviews(String.valueOf(id), sort);
     }
 
-    private void createLoaderVideos(){
+    private void createLoaderTrailers(){
         Bundle bundle = new Bundle();
         bundle.putString(SEARCH_VIDEO, makeUrlQuery(getString(R.string.videos)).toString());
 
@@ -103,7 +92,7 @@ public class InfoActivity extends AppCompatActivity implements VideoAdapter.Vide
         Bundle bundle = new Bundle();
         bundle.putString(SEARCH_REVIEW, makeUrlQuery(getString(R.string.reviews)).toString());
 
-        new LoaderReviews(getApplicationContext(), getSupportLoaderManager(), bundle, null);
+        new LoaderReviews(getApplicationContext(), getSupportLoaderManager(), bundle, reviewAdapter);
     }
 
     @Override
@@ -117,7 +106,7 @@ public class InfoActivity extends AppCompatActivity implements VideoAdapter.Vide
         int id = item.getItemId();
 
         if (id == R.id.menu_info){
-            Log.d("teste", "favoritou");
+            insertDatabase();
         }
 
         return super.onOptionsItemSelected(item);
@@ -126,5 +115,41 @@ public class InfoActivity extends AppCompatActivity implements VideoAdapter.Vide
     @Override
     public void onClick(Video video) {
         Log.d("teste", "clicou");
+    }
+
+    public void createRecyclerTrailers(){
+        LinearLayoutManager linearLayoutManager = new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false);
+        recyclerViewTrailer.setLayoutManager(linearLayoutManager);
+
+        videoAdapter = new VideoAdapter(getApplicationContext(), this);
+        recyclerViewTrailer.setAdapter(videoAdapter);
+        recyclerViewTrailer.setHasFixedSize(true);
+    }
+
+    public void createRecyclerReviews(){
+        LinearLayoutManager linearLayoutManager = new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false);
+        recyclerViewReview.setLayoutManager(linearLayoutManager);
+
+        reviewAdapter = new ReviewAdapter(getApplicationContext(), null);
+        recyclerViewReview.setAdapter(reviewAdapter);
+        recyclerViewReview.setHasFixedSize(true);
+    }
+
+    public void insertDatabase(){
+        new InsertDB().execute(movie);
+    }
+
+    public class InsertDB extends AsyncTask<Movie, Void, Void>{
+
+        @Override
+        protected Void doInBackground(Movie... movies) {
+            database.favoriteDAO().insertFavorite(movie);
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(Void aVoid) {
+            Log.d("teste", "inseriu");
+        }
     }
 }

@@ -40,6 +40,11 @@
     <string name="video_image_content">Image of player icon</string>
     <string name="trailers">Trailers</string>
 
+    <!--Review item Strings-->
+    <string name="review_author">Author</string>
+    <string name="review_content">Content</string>
+    <string name="reviews_title">Reviews</string>
+
     <!--Info Activity Strings -->
     <string name="favorites">Favorites</string>
 
