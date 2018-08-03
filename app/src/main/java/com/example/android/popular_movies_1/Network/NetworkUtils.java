@@ -10,7 +10,7 @@ import java.util.Scanner;
 
 public class NetworkUtils {
 
-    private static final String KEY_MOVIEDB = "47cd3048b1243fdf03812df8a6e2fc4f";
+    private static final String KEY_MOVIEDB = "";
 
     // URL that get data from movieDB
     private static final String MOVIEDB_URL = "http://api.themoviedb.org/3/movie";
