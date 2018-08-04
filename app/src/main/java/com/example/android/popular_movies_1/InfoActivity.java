@@ -1,6 +1,9 @@
 package com.example.android.popular_movies_1;
 
+import android.arch.lifecycle.Observer;
+import android.arch.lifecycle.ViewModelProviders;
 import android.os.AsyncTask;
+import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
@@ -10,6 +13,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.example.android.popular_movies_1.Adapter.MovieAdapter;
 import com.example.android.popular_movies_1.Adapter.ReviewAdapter;
@@ -20,6 +24,9 @@ import com.example.android.popular_movies_1.Loaders.LoaderVideos;
 import com.example.android.popular_movies_1.Model.Movie;
 import com.example.android.popular_movies_1.Model.Video;
 import com.example.android.popular_movies_1.Network.NetworkUtils;
+import com.example.android.popular_movies_1.ViewModel.AddFavoriteFactoryViewModel;
+import com.example.android.popular_movies_1.ViewModel.AddFavoriteViewModel;
+
 import java.net.URL;
 
 public class InfoActivity extends AppCompatActivity implements VideoAdapter.VideoAdapterOnClickHandler{
@@ -64,6 +71,19 @@ public class InfoActivity extends AppCompatActivity implements VideoAdapter.Vide
                 txtInfoRate.setText(String.valueOf(movie.getVote_average()));
                 txtInfoRelease.setText(movie.getRelease_data());
 
+                AddFavoriteFactoryViewModel favoriteFactory = new AddFavoriteFactoryViewModel(database, movie.getId());
+                AddFavoriteViewModel favoriteViewModel = ViewModelProviders.of(this, favoriteFactory).get(AddFavoriteViewModel.class);
+
+                favoriteViewModel.getFavorite().observe(this, new Observer<Movie>() {
+                    @Override
+                    public void onChanged(@Nullable Movie movie) {
+                        if(movie != null) {
+                            setMovieStatus(true);
+                        }
+
+                    }
+                });
+
             }
         }
 
@@ -98,6 +118,12 @@ public class InfoActivity extends AppCompatActivity implements VideoAdapter.Vide
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.info_menu_activity, menu);
+
+        if(movie.isFavorite()) {
+            MenuItem menuItem = menu.findItem(R.id.menu_info);
+            menuItem.setIcon(R.drawable.full_star);
+        }
+
         return true;
     }
 
@@ -106,7 +132,18 @@ public class InfoActivity extends AppCompatActivity implements VideoAdapter.Vide
         int id = item.getItemId();
 
         if (id == R.id.menu_info){
-            insertDatabase();
+
+            if (movie.isFavorite()) {
+                item.setIcon(R.drawable.blank_star);
+                deleteDatabase();
+                movie.setFavorite(false);
+            }
+            else {
+                item.setIcon(R.drawable.full_star);
+                insertDatabase();
+                movie.setFavorite(true);
+            }
+
         }
 
         return super.onOptionsItemSelected(item);
@@ -139,6 +176,10 @@ public class InfoActivity extends AppCompatActivity implements VideoAdapter.Vide
         new InsertDB().execute(movie);
     }
 
+    public void deleteDatabase(){
+        new DeleteDB().execute(movie);
+    }
+
     public class InsertDB extends AsyncTask<Movie, Void, Void>{
 
         @Override
@@ -149,7 +190,25 @@ public class InfoActivity extends AppCompatActivity implements VideoAdapter.Vide
 
         @Override
         protected void onPostExecute(Void aVoid) {
-            Log.d("teste", "inseriu");
+            Toast.makeText(getApplicationContext(), "Movie Inserted in favorites", Toast.LENGTH_SHORT).show();
         }
+    }
+
+    public class DeleteDB extends AsyncTask<Movie, Void, Void>{
+
+        @Override
+        protected Void doInBackground(Movie... movies) {
+            database.favoriteDAO().deleteFavorite(movie);
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(Void aVoid) {
+            Toast.makeText(getApplicationContext(), "Movie removed from favorites", Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    public void setMovieStatus(boolean status){
+        this.movie.setFavorite(status);
     }
 }

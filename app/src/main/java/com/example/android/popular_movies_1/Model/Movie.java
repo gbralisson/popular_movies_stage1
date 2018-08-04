@@ -1,6 +1,7 @@
 package com.example.android.popular_movies_1.Model;
 
 import android.arch.persistence.room.Entity;
+import android.arch.persistence.room.Ignore;
 import android.arch.persistence.room.PrimaryKey;
 
 import java.io.Serializable;
@@ -22,6 +23,9 @@ public class Movie implements Serializable{
     private boolean adult;
     private String overview;
     private String release_data;
+
+    @Ignore
+    private boolean favorite;
 
     public Movie() {
     }
@@ -129,5 +133,9 @@ public class Movie implements Serializable{
     public void setRelease_data(String release_data) {
         this.release_data = release_data;
     }
+
+    public boolean isFavorite(){ return favorite; }
+
+    public void setFavorite(boolean favorite){ this.favorite = favorite; }
 
 }

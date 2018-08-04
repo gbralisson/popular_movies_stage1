@@ -57,6 +57,8 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Movi
         recyclerView = findViewById(R.id.rv_movies);
         txt_loading = findViewById(R.id.txt_loading);
 
+        Log.d("teste", "onCreate");
+
         setupPreferences();
 
         int NUM_COLUMNS = 2;
@@ -112,6 +114,10 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Movi
         viewModel.getFavorites().observe(this, new Observer<Movie[]>() {
             @Override
             public void onChanged(@Nullable Movie[] movies) {
+
+                for (int i=0; i<movies.length; i++)
+                    Log.d("teste", String.valueOf(movies[i].getId()));
+
                 movieAdapter.setMovieData(movies);
             }
         });

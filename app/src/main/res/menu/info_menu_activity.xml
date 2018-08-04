@@ -5,7 +5,7 @@
     <item
         android:id="@+id/menu_info"
         android:title="@string/favorites"
-        android:icon="@mipmap/ic_launcher"
+        android:icon="@drawable/blank_star"
         app:showAsAction="ifRoom"/>
 
 </menu>
