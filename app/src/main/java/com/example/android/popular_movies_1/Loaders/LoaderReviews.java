@@ -7,7 +7,6 @@ import android.support.annotation.Nullable;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.AsyncTaskLoader;
 import android.support.v4.content.Loader;
-import android.util.Log;
 
 import com.example.android.popular_movies_1.Adapter.ReviewAdapter;
 import com.example.android.popular_movies_1.Model.Review;

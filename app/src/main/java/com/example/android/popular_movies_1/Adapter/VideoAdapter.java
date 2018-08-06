@@ -14,7 +14,7 @@ import com.example.android.popular_movies_1.R;
 
 public class VideoAdapter extends RecyclerView.Adapter<VideoAdapter.VideoAdapterViewHolder>{
 
-    Video[] videos;
+    private Video[] videos;
     private Context context;
     private VideoAdapterOnClickHandler handler;
 
@@ -38,9 +38,7 @@ public class VideoAdapter extends RecyclerView.Adapter<VideoAdapter.VideoAdapter
 
     @Override
     public void onBindViewHolder(@NonNull VideoAdapterViewHolder holder, int position) {
-        //holder.imagePlayer.setImageResource(R.mipmap.ic_player_icon);
         holder.txtName.setText(videos[position].getName());
-//        holder.txtType.setText(videos[position].getType());
     }
 
     @Override
@@ -53,15 +51,12 @@ public class VideoAdapter extends RecyclerView.Adapter<VideoAdapter.VideoAdapter
 
     public class VideoAdapterViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
 
-        private ImageView imagePlayer;
         private TextView txtName;
-        private TextView txtType;
 
-        public VideoAdapterViewHolder(View itemView) {
+        private VideoAdapterViewHolder(View itemView) {
             super(itemView);
-            imagePlayer = itemView.findViewById(R.id.imagePlayer);
             txtName = itemView.findViewById(R.id.textName);
-//            txtType = itemView.findViewById(R.id.textType);
+            itemView.setOnClickListener(this);
         }
 
         @Override

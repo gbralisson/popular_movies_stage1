@@ -19,6 +19,15 @@
     <string name="image_description">Movie Post</string>
     <string name="image_description_main">Thumbnail</string>
 
+    <!--Main Activity-->
+    <string name="favorites_tag">favorites</string>
+    <string name="favorite_null">No favorite movies</string>
+
+    <!--Info acitivity-->
+    <string name="key_intent">movie_data</string>
+    <string name="divide_trailer">Divider for trailers</string>
+    <string name="divide_review">Divider for reviews</string>
+
     <!--preferences-->
     <string name="settings_fragment">Settings</string>
     <string name="settings_title">Settings</string>

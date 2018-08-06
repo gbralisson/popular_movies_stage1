@@ -2,13 +2,14 @@ package com.example.android.popular_movies_1;
 
 import android.arch.lifecycle.Observer;
 import android.arch.lifecycle.ViewModelProviders;
+import android.content.Intent;
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.ImageView;
@@ -39,7 +40,6 @@ public class InfoActivity extends AppCompatActivity implements VideoAdapter.Vide
     private VideoAdapter videoAdapter;
     private ReviewAdapter reviewAdapter;
 
-    private String KEY_INTENT = "movie_data";
     private static final String SEARCH_VIDEO = "queryVideo";
     private static final String SEARCH_REVIEW = "queryReview";
 
@@ -62,8 +62,8 @@ public class InfoActivity extends AppCompatActivity implements VideoAdapter.Vide
 
         // Verify if there is any data from another activity
         if (getIntent() != null){
-            if(getIntent().hasExtra(KEY_INTENT)){
-                movie = (Movie) getIntent().getSerializableExtra(KEY_INTENT);
+            if(getIntent().hasExtra(getString(R.string.key_intent))){
+                movie = (Movie) getIntent().getSerializableExtra(getString(R.string.key_intent));
 
                 txtInfoTitle.setText(movie.getTitle());
                 txtInfoOverview.setText(movie.getOverview());
@@ -151,7 +151,8 @@ public class InfoActivity extends AppCompatActivity implements VideoAdapter.Vide
 
     @Override
     public void onClick(Video video) {
-        Log.d("teste", "clicou");
+        Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse("vnd.youtube://"+video.getKey()));
+        startActivity(intent);
     }
 
     public void createRecyclerTrailers(){

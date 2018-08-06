@@ -1,19 +1,20 @@
 package com.example.android.popular_movies_1;
 
+import android.support.annotation.NonNull;
+import android.support.v4.app.LoaderManager;
 import android.arch.lifecycle.Observer;
-import android.arch.lifecycle.ViewModelProvider;
 import android.arch.lifecycle.ViewModelProviders;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.os.AsyncTask;
 import android.os.Parcelable;
 import android.support.annotation.Nullable;
+import android.support.v4.content.AsyncTaskLoader;
+import android.support.v4.content.Loader;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.preference.PreferenceManager;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -21,7 +22,6 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.example.android.popular_movies_1.Adapter.MovieAdapter;
-import com.example.android.popular_movies_1.Loaders.LoaderReviews;
 import com.example.android.popular_movies_1.Model.Movie;
 import com.example.android.popular_movies_1.Network.NetworkUtils;
 import com.example.android.popular_movies_1.Utils.ParseJsonFromMovieDB;
@@ -31,14 +31,14 @@ import org.json.JSONException;
 
 import java.io.IOException;
 import java.net.URL;
-import java.util.List;
 
 
 public class MainActivity extends AppCompatActivity implements MovieAdapter.MovieAdapterOnClickHandler,
-        SharedPreferences.OnSharedPreferenceChangeListener{
+        SharedPreferences.OnSharedPreferenceChangeListener, LoaderManager.LoaderCallbacks<Movie[]>{
 
     private ProgressBar progressBar;
     private TextView txt_loading;
+    private TextView txt_favorite_null;
 
     private RecyclerView recyclerView;
     private MovieAdapter movieAdapter;
@@ -47,6 +47,8 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Movi
     private Parcelable recycler_state;
 
     private final String SAVE_LIST_STATE = "instance_list";
+    private static final String SEARCH_MOVIE = "queryMovie";
+    private static final int LOADER_ID_MOVIE = 01;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -56,8 +58,7 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Movi
         progressBar = findViewById(R.id.pb_loading);
         recyclerView = findViewById(R.id.rv_movies);
         txt_loading = findViewById(R.id.txt_loading);
-
-        Log.d("teste", "onCreate");
+        txt_favorite_null = findViewById(R.id.txt_favorites_null);
 
         setupPreferences();
 
@@ -74,12 +75,11 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Movi
         // Restore the instance saved
         recyclerView.getLayoutManager().onRestoreInstanceState(recycler_state);
 
-        if (sort_state.equals("favorites")) {
+        if (sort_state.equals(getString(R.string.favorites_tag))) {
             setupViewModel();
         }else {
             loadDataMovie(sort_state);
         }
-
 
     }
 
@@ -114,11 +114,19 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Movi
         viewModel.getFavorites().observe(this, new Observer<Movie[]>() {
             @Override
             public void onChanged(@Nullable Movie[] movies) {
-
-                for (int i=0; i<movies.length; i++)
-                    Log.d("teste", String.valueOf(movies[i].getId()));
-
-                movieAdapter.setMovieData(movies);
+                if (movies.length == 0) {
+                    txt_favorite_null.setVisibility(View.VISIBLE);
+                    recyclerView.setVisibility(View.INVISIBLE);
+                    progressBar.setVisibility(View.INVISIBLE);
+                    txt_loading.setVisibility(View.INVISIBLE);
+                }
+                else{
+                    recyclerView.setVisibility(View.VISIBLE);
+                    progressBar.setVisibility(View.INVISIBLE);
+                    txt_loading.setVisibility(View.INVISIBLE);
+                    txt_favorite_null.setVisibility(View.INVISIBLE);
+                    movieAdapter.setMovieData(movies);
+                }
             }
         });
     }
@@ -137,7 +145,16 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Movi
 
     // Method to fetch data from movieDB
     private void loadDataMovie(String sort){
-        new FetchMovieDB().execute(sort);
+        Bundle bundle = new Bundle();
+        bundle.putString(SEARCH_MOVIE, sort);
+
+        LoaderManager loaderManager = getSupportLoaderManager();
+        Loader<Movie[]> movieLoader = loaderManager.getLoader(LOADER_ID_MOVIE);
+        if (movieLoader == null)
+            loaderManager.initLoader(LOADER_ID_MOVIE, bundle, this);
+        else
+            loaderManager.restartLoader(LOADER_ID_MOVIE, bundle, this);
+
     }
 
     // Send the data to Info activity
@@ -167,59 +184,81 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Movi
         return super.onOptionsItemSelected(item);
     }
 
-    private class FetchMovieDB extends AsyncTask<String, Void, Movie[]> {
+    @NonNull
+    @Override
+    public Loader<Movie[]> onCreateLoader(int id, final Bundle args) {
+        return new AsyncTaskLoader<Movie[]>(this) {
 
-        @Override
-        protected void onPreExecute() {
-            recyclerView.setVisibility(View.VISIBLE);
-            progressBar.setVisibility(View.VISIBLE);
-            txt_loading.setVisibility(View.INVISIBLE);
-        }
+            Movie[] moviesJson;
 
-        @Override
-        protected Movie[] doInBackground(String... params) {
+            @Override
+            protected void onStartLoading() {
+                super.onStartLoading();
 
-            if (params.length == 0)
-                return null;
+                if (args == null)
+                    return;
 
-            String sort = params[0];
-            URL movie_url = NetworkUtils.buildUrl(sort);
+                recyclerView.setVisibility(View.INVISIBLE);
+                progressBar.setVisibility(View.VISIBLE);
+                txt_loading.setVisibility(View.INVISIBLE);
+                txt_favorite_null.setVisibility(View.INVISIBLE);
 
-            try {
+                if (moviesJson != null)
+                    deliverResult(moviesJson);
+                else
+                    forceLoad();
 
-                String responseURL = NetworkUtils.getResponseFromHttpUrl(movie_url);
+            }
 
-                if (responseURL != null){
-                    return ParseJsonFromMovieDB.getJson(responseURL);
+            @Nullable
+            @Override
+            public Movie[] loadInBackground() {
+
+                String sort = args.getString(SEARCH_MOVIE);
+                URL movie_url = NetworkUtils.buildUrl(sort);
+
+                try {
+
+                    String responseURL = NetworkUtils.getResponseFromHttpUrl(movie_url);
+
+                    if (responseURL != null){
+                        return ParseJsonFromMovieDB.getJson(responseURL);
+                    }
+
+                } catch (IOException e) {
+                    e.printStackTrace();
+                } catch (JSONException e) {
+                    e.printStackTrace();
                 }
 
-            } catch (IOException e) {
-                e.printStackTrace();
-            } catch (JSONException e) {
-                e.printStackTrace();
+                return null;
             }
+        };
+    }
 
-            return null;
-        }
+    @Override
+    public void onLoadFinished(@NonNull Loader<Movie[]> loader, Movie[] data) {
 
-        @Override
-        protected void onPostExecute(Movie[] movieData) {
+        if (data != null) {
 
-            if (movieData != null) {
+            recyclerView.setVisibility(View.VISIBLE);
+            progressBar.setVisibility(View.INVISIBLE);
+            txt_loading.setVisibility(View.INVISIBLE);
+            txt_favorite_null.setVisibility(View.INVISIBLE);
+            movieAdapter.setMovieData(data);
 
-                progressBar.setVisibility(View.INVISIBLE);
-                txt_loading.setVisibility(View.INVISIBLE);
-                movieAdapter.setMovieData(movieData);
+        } else {
 
-            } else {
-
-                progressBar.setVisibility(View.INVISIBLE);
-                txt_loading.setVisibility(View.VISIBLE);
-                recyclerView.setVisibility(View.INVISIBLE);
-
-            }
+            progressBar.setVisibility(View.INVISIBLE);
+            txt_loading.setVisibility(View.VISIBLE);
+            txt_favorite_null.setVisibility(View.INVISIBLE);
+            recyclerView.setVisibility(View.INVISIBLE);
 
         }
+    }
+
+    @Override
+    public void onLoaderReset(@NonNull Loader<Movie[]> loader) {
 
     }
 }

@@ -38,8 +38,8 @@
                 android:padding="3dp">
 
                 <ImageView
-                    android:layout_width="wrap_content"
-                    android:layout_height="match_parent"
+                    android:layout_width="185dp"
+                    android:layout_height="275dp"
                     android:id="@+id/img_info_poster"
                     android:scaleType="fitXY"
                     android:contentDescription="@string/image_description"/>
@@ -137,7 +137,7 @@
                 android:id="@+id/rv_videos"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:padding="2dp"/>
+                android:padding="3dp" />
 
         </LinearLayout>
 
