@@ -12,7 +12,11 @@ public abstract class AppDatabase extends RoomDatabase{
 
     private static final Object LOCK = new Object();
     private static final String DATABASE_NAME = "moviefavorite";
+    private static final String DATABASE_NAME_POPULAR = "moviepopular";
+    private static final String DATABASE_NAME_TOPRATED = "movietoprated";
     private static AppDatabase sInstance;
+    private static AppDatabase sInstancePopular;
+    private static AppDatabase sInstanceToprated;
 
     public static AppDatabase getsInstance(Context context){
         if (sInstance == null){
@@ -24,6 +28,28 @@ public abstract class AppDatabase extends RoomDatabase{
         return sInstance;
     }
 
+    public static AppDatabase getsInstancePopular(Context context){
+        if (sInstancePopular == null){
+            synchronized (LOCK){
+                sInstancePopular = Room.databaseBuilder(context.getApplicationContext(), AppDatabase.class, AppDatabase.DATABASE_NAME_POPULAR)
+                        .build();
+            }
+        }
+        return sInstancePopular;
+    }
+
+    public static AppDatabase getsInstanceToprated(Context context){
+        if (sInstanceToprated == null){
+            synchronized (LOCK){
+                sInstanceToprated = Room.databaseBuilder(context.getApplicationContext(), AppDatabase.class, AppDatabase.DATABASE_NAME_TOPRATED)
+                        .build();
+            }
+        }
+        return sInstanceToprated;
+    }
+
     public abstract FavoriteDAO favoriteDAO();
+
+//    public abstract PopularDAO popularDAO();
 
 }

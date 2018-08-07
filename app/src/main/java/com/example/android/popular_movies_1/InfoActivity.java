@@ -12,6 +12,7 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -55,6 +56,8 @@ public class InfoActivity extends AppCompatActivity implements VideoAdapter.Vide
         ImageView imgInfoPoster = findViewById(R.id.img_info_poster);
         TextView txtInfoRate = findViewById(R.id.txt_info_rate);
         TextView txtInfoRelease = findViewById(R.id.txt_info_release);
+        TextView txtNoConnectionTrailer = findViewById(R.id.txt_no_connection_trailer);
+        TextView txtNoConnectionReview = findViewById(R.id.txt_no_connection_review);
         recyclerViewTrailer = findViewById(R.id.rv_videos);
         recyclerViewReview = findViewById(R.id.rv_review);
 
@@ -87,11 +90,20 @@ public class InfoActivity extends AppCompatActivity implements VideoAdapter.Vide
             }
         }
 
-        createRecyclerTrailers();
-        createRecyclerReviews();
+        if (NetworkUtils.verifyConnection(this)) {
+            txtNoConnectionTrailer.setVisibility(View.INVISIBLE);
+            txtNoConnectionReview.setVisibility(View.INVISIBLE);
 
-        createLoaderTrailers();
-        createLoaderReviews();
+            createRecyclerTrailers();
+            createRecyclerReviews();
+
+            createLoaderTrailers();
+            createLoaderReviews();
+
+        } else {
+            txtNoConnectionTrailer.setVisibility(View.VISIBLE);
+            txtNoConnectionReview.setVisibility(View.VISIBLE);
+        }
 
     }
 
@@ -191,7 +203,7 @@ public class InfoActivity extends AppCompatActivity implements VideoAdapter.Vide
 
         @Override
         protected void onPostExecute(Void aVoid) {
-            Toast.makeText(getApplicationContext(), "Movie Inserted in favorites", Toast.LENGTH_SHORT).show();
+            Toast.makeText(getApplicationContext(), getString(R.string.movie_favorite_enabled_info), Toast.LENGTH_SHORT).show();
         }
     }
 
@@ -205,7 +217,7 @@ public class InfoActivity extends AppCompatActivity implements VideoAdapter.Vide
 
         @Override
         protected void onPostExecute(Void aVoid) {
-            Toast.makeText(getApplicationContext(), "Movie removed from favorites", Toast.LENGTH_SHORT).show();
+            Toast.makeText(getApplicationContext(), getString(R.string.movie_favorite_disabled_info), Toast.LENGTH_SHORT).show();
         }
     }
 

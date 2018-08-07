@@ -15,6 +15,7 @@ import android.os.Bundle;
 import android.support.v7.preference.PreferenceManager;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -22,10 +23,13 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.example.android.popular_movies_1.Adapter.MovieAdapter;
+import com.example.android.popular_movies_1.Database.AppDatabase;
 import com.example.android.popular_movies_1.Model.Movie;
 import com.example.android.popular_movies_1.Network.NetworkUtils;
 import com.example.android.popular_movies_1.Utils.ParseJsonFromMovieDB;
 import com.example.android.popular_movies_1.ViewModel.FavoriteViewModel;
+import com.example.android.popular_movies_1.ViewModel.PopularViewModel;
+import com.example.android.popular_movies_1.ViewModel.TopRatedViewModel;
 
 import org.json.JSONException;
 
@@ -50,6 +54,9 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Movi
     private static final String SEARCH_MOVIE = "queryMovie";
     private static final int LOADER_ID_MOVIE = 01;
 
+    private AppDatabase databasePopular;
+    private AppDatabase databaseTopRated;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -59,6 +66,9 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Movi
         recyclerView = findViewById(R.id.rv_movies);
         txt_loading = findViewById(R.id.txt_loading);
         txt_favorite_null = findViewById(R.id.txt_favorites_null);
+
+        databasePopular = AppDatabase.getsInstancePopular(getApplicationContext());
+        databaseTopRated = AppDatabase.getsInstanceToprated(getApplicationContext());
 
         setupPreferences();
 
@@ -75,11 +85,14 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Movi
         // Restore the instance saved
         recyclerView.getLayoutManager().onRestoreInstanceState(recycler_state);
 
-        if (sort_state.equals(getString(R.string.favorites_tag))) {
-            setupViewModel();
-        }else {
-            loadDataMovie(sort_state);
-        }
+        if (sort_state.equals(getString(R.string.pref_options_popular_value)))
+            setupViewModelPopular();
+
+        else if (sort_state.equals(getString(R.string.pref_options_top_rated_value)))
+            setupViewModelTopRated();
+
+        else
+            setupViewModelFavorites();
 
     }
 
@@ -109,7 +122,35 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Movi
         sort_state = sharedPreferences.getString(getString(R.string.pref_options_key), getString(R.string.pref_options_popular_value));
     }
 
-    private void setupViewModel(){
+    private void setupViewModelPopular(){
+        PopularViewModel popularViewModel = ViewModelProviders.of(this).get(PopularViewModel.class);
+        popularViewModel.getMoviePopular().observe(this, new Observer<Movie[]>() {
+            @Override
+            public void onChanged(@Nullable Movie[] movies) {
+                if (movies.length == 0){
+                    loadDataMovie(sort_state);
+                }else{
+                    movieAdapter.setMovieData(movies);
+                }
+            }
+        });
+    }
+
+    private void setupViewModelTopRated(){
+        TopRatedViewModel topRatedViewModel = ViewModelProviders.of(this).get(TopRatedViewModel.class);
+        topRatedViewModel.getMovieToprated().observe(this, new Observer<Movie[]>() {
+            @Override
+            public void onChanged(@Nullable Movie[] movies) {
+                if (movies.length == 0){
+                    loadDataMovie(sort_state);
+                }else{
+                    movieAdapter.setMovieData(movies);
+                }
+            }
+        });
+    }
+
+    private void setupViewModelFavorites(){
         FavoriteViewModel viewModel = ViewModelProviders.of(this).get(FavoriteViewModel.class);
         viewModel.getFavorites().observe(this, new Observer<Movie[]>() {
             @Override
@@ -145,15 +186,24 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Movi
 
     // Method to fetch data from movieDB
     private void loadDataMovie(String sort){
-        Bundle bundle = new Bundle();
-        bundle.putString(SEARCH_MOVIE, sort);
 
-        LoaderManager loaderManager = getSupportLoaderManager();
-        Loader<Movie[]> movieLoader = loaderManager.getLoader(LOADER_ID_MOVIE);
-        if (movieLoader == null)
-            loaderManager.initLoader(LOADER_ID_MOVIE, bundle, this);
-        else
-            loaderManager.restartLoader(LOADER_ID_MOVIE, bundle, this);
+        if (NetworkUtils.verifyConnection(this)) {
+            Bundle bundle = new Bundle();
+            bundle.putString(SEARCH_MOVIE, sort);
+
+            LoaderManager loaderManager = getSupportLoaderManager();
+            Loader<Movie[]> movieLoader = loaderManager.getLoader(LOADER_ID_MOVIE);
+            if (movieLoader == null)
+                loaderManager.initLoader(LOADER_ID_MOVIE, bundle, this);
+            else
+                loaderManager.restartLoader(LOADER_ID_MOVIE, bundle, this);
+
+        } else {
+            progressBar.setVisibility(View.INVISIBLE);
+            txt_loading.setVisibility(View.VISIBLE);
+            txt_favorite_null.setVisibility(View.INVISIBLE);
+            recyclerView.setVisibility(View.INVISIBLE);
+        }
 
     }
 
@@ -222,7 +272,14 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Movi
                     String responseURL = NetworkUtils.getResponseFromHttpUrl(movie_url);
 
                     if (responseURL != null){
-                        return ParseJsonFromMovieDB.getJson(responseURL);
+                        Movie[] movies = ParseJsonFromMovieDB.getJson(responseURL);
+
+                        if (sort.equals(getString(R.string.pref_options_popular_value)))
+                            insertDatabase(databasePopular, movies);
+                        else
+                            insertDatabase(databaseTopRated, movies);
+
+                        return movies;
                     }
 
                 } catch (IOException e) {
@@ -249,8 +306,8 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Movi
 
         } else {
 
-            progressBar.setVisibility(View.INVISIBLE);
-            txt_loading.setVisibility(View.VISIBLE);
+            progressBar.setVisibility(View.VISIBLE);
+            txt_loading.setVisibility(View.INVISIBLE);
             txt_favorite_null.setVisibility(View.INVISIBLE);
             recyclerView.setVisibility(View.INVISIBLE);
 
@@ -260,5 +317,11 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Movi
     @Override
     public void onLoaderReset(@NonNull Loader<Movie[]> loader) {
 
+    }
+
+    public void insertDatabase(AppDatabase database, Movie[] movies){
+        for (int i=0;i<movies.length;i++){
+            database.favoriteDAO().insertFavorite(movies[i]);
+        }
     }
 }

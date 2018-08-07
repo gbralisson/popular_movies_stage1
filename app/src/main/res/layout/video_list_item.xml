@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content">
 
-    <!--Image from myiconfinder -->
+    <!--Image from myiconfinder.com -->
     <ImageView
         android:id="@+id/imagePlayer"
         android:layout_width="60dp"

@@ -21,12 +21,17 @@
 
     <!--Main Activity-->
     <string name="favorites_tag">favorites</string>
-    <string name="favorite_null">No favorite movies</string>
+    <string name="popular_tag">popular</string>
+    <string name="toprated_tag">top_rated</string>
+    <string name="favorite_null">No favorited movies</string>
 
     <!--Info acitivity-->
     <string name="key_intent">movie_data</string>
     <string name="divide_trailer">Divider for trailers</string>
     <string name="divide_review">Divider for reviews</string>
+    <string name="movie_favorite_enabled_info">Movie Inserted in favorites</string>
+    <string name="movie_favorite_disabled_info">Movie removed from favorites</string>
+    <string name="no_connection">No connection with internet</string>
 
     <!--preferences-->
     <string name="settings_fragment">Settings</string>
